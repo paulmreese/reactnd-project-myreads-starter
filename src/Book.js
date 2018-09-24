@@ -17,10 +17,6 @@ class Book extends Component {
       height: '193px'
     }
 
-    /*
-    TODO: add generic image for books without images
-    */
-
     return (
       <li>
         <div className="book">
@@ -28,7 +24,8 @@ class Book extends Component {
             <img
               className="book-cover"
               style={styles}
-              src={this.props.book.imageLinks ? this.props.book.imageLinks.thumbnail : '/'}
+              src={this.props.book.imageLinks ?
+                this.props.book.imageLinks.thumbnail : '/No-Image-Available.png'}
               alt={this.props.book.title}/>
             <div className="book-shelf-changer">
               <select
@@ -47,7 +44,7 @@ class Book extends Component {
           </div>
           <div className="book-title">{this.props.book.title}</div>
           <div className="book-authors">
-            {this.props.book.authors ?this.props.book.authors.join(', ') : ''}
+            {this.props.book.authors ? this.props.book.authors.join(', ') : ''}
           </div>
         </div>
       </li>
