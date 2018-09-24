@@ -17,13 +17,18 @@ class SearchBooks extends Component {
     BooksAPI.update(book, shelf).then((res) => {
       this.props.onChangeShelf(res)
     })
-    for(var book in this.state.foundBooks){
+
+    /*To avoid directly mutating state, create a copy and then use setState*/
+    let temporaryCopy = [];
+    for(var item in this.state.foundBooks){
+      temporaryCopy.push(this.state.foundBooks[item])
       for(var filter in this.props.books){
-        if(this.state.foundBooks[book].id === this.props.books[filter].id){
-          this.state.foundBooks[book].shelf = shelf
+        if(this.state.foundBooks[item].id === this.props.books[filter].id){
+          temporaryCopy[item].shelf = shelf
         }
       }
     }
+    this.setState({ foundBooks : temporaryCopy})
   }
 
   searchBooks = (query) => {
@@ -31,7 +36,7 @@ class SearchBooks extends Component {
     BooksAPI.search(query).then((foundBooks) => {
 
       if (!foundBooks.error) {
-        /*finds books based off of the chosen books, and set their shelves,
+        /*filter finds books based off of the chosen books, and set their shelves,
         then set all others to 'none'*/
 
         /*Thanks to
@@ -59,6 +64,8 @@ class SearchBooks extends Component {
         }
 
         this.setState({ foundBooks })
+      } else {
+        this.setState({ foundBooks : 'error'})
       }
     })
   }
@@ -85,21 +92,22 @@ class SearchBooks extends Component {
               placeholder="Search by title or author"
               onChange={(event) => (event.target.value !== '') ?
                 this.searchBooks(event.target.value) :
-                'Enter your search terms above'}
+                this.setState({ foundBooks: [] })}
             />
 
           </div>
         </div>
         <div className="search-books-results">
           <ol className="books-grid">
-            {(foundBooks && foundBooks.length > 0) ?
+            {(foundBooks && foundBooks.length > 0 && !(foundBooks === 'error')) ?
               foundBooks.map((book) => (
                 <Book book={book}
                   key={book.id}
                   onSelectShelf={this.handleShelf}/>
               ))
-              : (query.length > 0) ? 'No search results' :
-                'Enter your search terms above'}
+              : (this.state.foundBooks === 'error' && query.length > 0) ?
+                'No search results. Please try different search terms.'
+                : 'Enter your search terms above'}
           </ol>
         </div>
       </div>
